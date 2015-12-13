@@ -1,0 +1,108 @@
+#!perl
+use 5.14.0;
+use utf8;
+use warnings;
+use Dist::Milla::App;
+use Path::Tiny;
+package Path::Tiny {
+    sub replace {
+        my ($self, $sub) = @_;
+        local $_ = $self->slurp;
+        $sub->();
+        $self->spew($_);
+        $self;
+    }
+}
+
+sub milla { local @ARGV = @_; state $app = Dist::Milla::App->new; $app->run }
+
+my $module = shift;
+$module = shift if $module && $module eq "new";
+die "Usage: mi MODULE\n" if !$module || $module =~ /^(-h|--help)$/;
+
+my $github_user = `git config --global github.user`
+    or die "Need to set `git config --global github.user yourname`\n";
+my $email = `git config --global user.email`
+    or die "Need to set `git config --global user.email yourmail`\n";
+chomp $_ for $github_user, $email;
+
+milla "new", $module;
+
+my $dir = $module =~ s/::/-/gr;
+chdir $dir or die; # XXX
+
+path(".gitignore")->append(<<'...');
+/.carmel/
+/MANIFEST
+/META.yml
+/Makefile
+/Makefile.old
+/blib/
+/cpanfile.snapshot
+/local/
+/pm_to_blib
+...
+
+path('dist.ini')->append(<<'...');
+installer = MakeMaker
+
+[GitHubREADME::Badge]
+badges = travis
+
+[Metadata]
+x_static_install = 1
+...
+
+path('.travis.yml')->spew(<<'...');
+language: perl
+perl:
+  - "5.22"
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+  - "5.10"
+  - "5.8"
+script:
+  - prove -l t
+sudo: false
+...
+
+path("t/01_basic.t")->spew(<<"...");
+use strict;
+use warnings;
+use Test::More;
+use $module;
+
+pass "ok";
+
+done_testing;
+...
+
+path( "lib/" . ($module =~ s{::}{/}gr) . ".pm" )->replace(sub {
+    s{\nuse strict;\nuse 5.008_005;}{use strict;\nuse warnings;\n};
+    s{=head1 SEE ALSO\n\n}{};
+    s{=head1 AUTHOR[^=]*}{}sm;
+    s{=head1 LICENSE\n\n}{};
+    s{=head1 COPYRIGHT}{=head1 COPYRIGHT AND LICENSE};
+    s{Copyright (\d+)- ([^\n]+)}{Copyright $1 $2 <$email>};
+});
+
+path("cpanfile")->replace(sub {
+    my $N = qr/[^\n]/;
+    s/$N*Some::Module$N*\n\n//;
+    s/0\.96/0.98/;
+});
+
+path("Changes")->replace(sub {
+    s{^\s+\-}{    -}sm;
+});
+
+unlink $_ for qw(Build.PL t/basic.t);
+mkdir $_ for qw(script);
+!system "git remote add origin ssh://git\@github.com/$github_user/$dir.git" or exit 1;
+!system "git add --all ." or exit 1;
+milla "build", "--no-tgz";
+milla "clean";
+!system "git add ." or exit 1;
