@@ -10,7 +10,8 @@ App::Mi - wrapper for milla new :)
 
 # INSTALL
 
-    > cpanm -nq git://github.com/shoichikaji/mi.git
+    # static install!
+    > cpanm-menlo -nq git://github.com/shoichikaji/mi.git
 
 # COPYRIGHT AND LICENSE
 
