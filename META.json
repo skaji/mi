@@ -38,7 +38,6 @@
       "runtime" : {
          "requires" : {
             "Dist::Milla" : "0",
-            "Dist::Zilla::Plugin::GitHubREADME::Badge" : "0",
             "Path::Tiny" : "0",
             "perl" : "v5.14.0"
          }

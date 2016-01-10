@@ -21,7 +21,6 @@ my %WriteMakefileArgs = (
   "NAME" => "App::Mi",
   "PREREQ_PM" => {
     "Dist::Milla" => 0,
-    "Dist::Zilla::Plugin::GitHubREADME::Badge" => 0,
     "Path::Tiny" => 0
   },
   "TEST_REQUIRES" => {
@@ -36,7 +35,6 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Dist::Milla" => 0,
-  "Dist::Zilla::Plugin::GitHubREADME::Badge" => 0,
   "Path::Tiny" => 0,
   "Test::More" => "0.98"
 );
