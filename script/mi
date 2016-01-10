@@ -4,6 +4,7 @@ use utf8;
 use warnings;
 use Dist::Milla::App;
 use Path::Tiny;
+use Time::Piece ();
 package Path::Tiny {
     sub replace {
         my ($self, $sub) = @_;
@@ -19,12 +20,16 @@ sub milla { local @ARGV = @_; state $app = Dist::Milla::App->new; $app->run }
 my $module = shift;
 $module = shift if $module && $module eq "new";
 die "Usage: mi MODULE\n" if !$module || $module =~ /^(-h|--help)$/;
+$module =~ s/-/::/g;
 
 my $github_user = `git config --global github.user`
     or die "Need to set `git config --global github.user yourname`\n";
+my $github_host = `git config --global github.host` || "github.com";
+my $user = `git config --global user.name`
+    or die "Need to set `git config --global user.name yourname`\n";
 my $email = `git config --global user.email`
     or die "Need to set `git config --global user.email yourmail`\n";
-chomp $_ for $github_user, $email;
+chomp $_ for $github_user, $github_host, $user, $email;
 
 milla "new", $module;
 
@@ -43,11 +48,12 @@ path(".gitignore")->append(<<'...');
 /pm_to_blib
 ...
 
-path('dist.ini')->append(<<'...');
-installer = MakeMaker
+path('dist.ini')->spew(<<"...");
+name = $dir
 
-[GitHubREADME::Badge]
-badges = travis
+[\@Milla]
+installer = MakeMaker
+-remove = ReadmeAnyFromPod
 
 [Metadata]
 x_static_install = 1
@@ -99,9 +105,48 @@ path("Changes")->replace(sub {
     s{^\s+\-}{    -}sm;
 });
 
+my $repo = "$github_host/$github_user/$dir";
+my $travis = "[![Build Status]"
+           . "(https://travis-ci.org/$github_user/$dir.svg?branch=master)]"
+           . "(https://travis-ci.org/$github_user/$dir)";
+$travis = "" if $github_host ne "github.com";
+
+path("README.md")->spew(<<"...");
+# $module $travis
+
+This is a perl module $module.
+
+## Install
+
+Make sure you have [cpanm](https://github.com/miyagawa/cpanminus).
+If not, install it first:
+
+```sh
+\$ curl -sL http://cpanmin.us | perl - -nq App::cpanminus
+```
+
+Then:
+
+```sh
+\$ cpanm -nq git://$repo.git
+```
+
+## Usage
+
+```perl
+use $module
+```
+
+## License
+
+Copyright (c) @{[ Time::Piece->new->year ]} $user
+
+This software is licensed under the same terms as Perl.
+...
+
 unlink $_ for qw(Build.PL t/basic.t);
 mkdir $_ for qw(script);
-!system "git remote add origin ssh://git\@github.com/$github_user/$dir.git" or exit 1;
+!system "git remote add origin ssh://git\@$github_host/$github_user/$dir.git" or exit 1;
 !system "git add --all ." or exit 1;
 milla "build", "--no-tgz";
 milla "clean";
