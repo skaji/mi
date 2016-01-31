@@ -36,6 +36,9 @@ milla "new", $module;
 my $dir = $module =~ s/::/-/gr;
 chdir $dir or die; # XXX
 
+unlink $_ for qw(Build.PL t/basic.t);
+mkdir $_ for qw(script xt);
+
 path(".gitignore")->append(<<'...');
 /.carmel/
 /MANIFEST
@@ -73,11 +76,18 @@ perl:
 install:
   - cpanm -nq --installdeps --with-develop .
 script:
-  - prove -l t
+  - prove -l t xt
 sudo: false
 ...
 
-path("t/01_basic.t")->spew(<<"...");
+path("t/00_use.t")->spew(<<"...");
+use strict;
+use warnings;
+use Test::More tests => 1;
+use_ok '$module';
+...
+
+path("xt/01_basic.t")->spew(<<"___");
 use strict;
 use warnings;
 use Test::More;
@@ -86,7 +96,7 @@ use $module;
 pass "ok";
 
 done_testing;
-...
+___
 
 path( "lib/" . ($module =~ s{::}{/}gr) . ".pm" )->replace(sub {
     s{\nuse strict;\nuse 5.008_005;}{use strict;\nuse warnings;\n};
@@ -97,14 +107,16 @@ path( "lib/" . ($module =~ s{::}{/}gr) . ".pm" )->replace(sub {
     s{Copyright (\d+)- ([^\n]+)}{Copyright $1 $2 <$email>};
 });
 
-path("cpanfile")->replace(sub {
-    my $N = qr/[^\n]/;
-    s/$N*Some::Module$N*\n\n//;
-    s/0\.96/0.98/;
-});
+path("cpanfile")->spew(<<'___');
+requires 'perl', '5.008005';
+
+on develop => sub {
+    requires 'Test::More', '0.98';
+};
+___
 
 path("Changes")->replace(sub {
-    s{^\s+\-}{    -}sm;
+    s{^\s+\-}{  -}sm;
 });
 
 my $repo = "$github_host/$github_user/$dir";
@@ -146,8 +158,6 @@ Copyright (c) @{[ Time::Piece->new->year ]} $user
 This software is licensed under the same terms as Perl.
 ...
 
-unlink $_ for qw(Build.PL t/basic.t);
-mkdir $_ for qw(script);
 !system "git remote add origin ssh://git\@$github_host/$github_user/$dir.git" or exit 1;
 !system "git add --all ." or exit 1;
 milla "build", "--no-tgz";
