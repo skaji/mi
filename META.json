@@ -4,7 +4,7 @@
       "Shoichi Kaji <skaji@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.042, Dist::Milla version v1.0.15, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Dist::Zilla version 5.043, Dist::Milla version v1.0.15, CPAN::Meta::Converter version 2.150005",
    "license" : [
       "perl_5"
    ],
@@ -51,13 +51,13 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/shoichikaji/mi/issues"
+         "web" : "https://github.com/skaji/mi/issues"
       },
-      "homepage" : "https://github.com/shoichikaji/mi",
+      "homepage" : "https://github.com/skaji/mi",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/shoichikaji/mi.git",
-         "web" : "https://github.com/shoichikaji/mi"
+         "url" : "https://github.com/skaji/mi.git",
+         "web" : "https://github.com/skaji/mi"
       }
    },
    "version" : "0.01",

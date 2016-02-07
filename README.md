@@ -1,4 +1,4 @@
-# mi [![Build Status](https://travis-ci.org/shoichikaji/mi.svg?branch=master)](https://travis-ci.org/shoichikaji/mi)
+# mi [![Build Status](https://travis-ci.org/skaji/mi.svg?branch=master)](https://travis-ci.org/skaji/mi)
 
 mi generates a project skeleton for creating a cpan module.
 
@@ -26,7 +26,7 @@ $ curl -sL http://cpanmin.us | perl - -nq App::cpanminus
 Then:
 
 ```sh
-$ cpanm -nq git://github.com/shoichikaji/mi.git
+$ cpanm -nq git://github.com/skaji/mi.git
 ```
 
 ## Usage
