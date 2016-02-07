@@ -49,6 +49,7 @@ path(".gitignore")->append(<<'...');
 /cpanfile.snapshot
 /local/
 /pm_to_blib
+.DS_Store
 ...
 
 path('dist.ini')->spew(<<"...");
@@ -84,7 +85,8 @@ path("t/00_use.t")->spew(<<"...");
 use strict;
 use warnings;
 use Test::More tests => 1;
-use_ok '$module';
+use $module;
+pass "happy hacking!";
 ...
 
 path("xt/01_basic.t")->spew(<<"___");
