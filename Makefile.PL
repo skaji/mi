@@ -7,7 +7,7 @@ use 5.014000;
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "wrapper for milla new :)",
+  "ABSTRACT" => "wrapper for milla new",
   "AUTHOR" => "Shoichi Kaji <skaji\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0
