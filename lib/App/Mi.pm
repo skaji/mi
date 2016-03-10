@@ -131,11 +131,9 @@ sub prepare_files {
           - "5.8"
     ));
 
-    my $configure = $self->xs ? "\non configure => sub {\n    requires 'parent';\n};\n" : "";
-
     path("cpanfile")->spew(here qq(
         requires 'perl', '5.008005';
-        $configure
+
         on test => sub {
             requires 'Test::More', '0.98';
         };
@@ -156,9 +154,10 @@ sub prepare_files {
     path("t/00_use.t")->spew(here qq(
         use strict;
         use warnings;
-        use Test::More tests => 1;
+        use Test::More;
         use @{[ $self->module ]};
         pass "happy hacking!";
+        done_testing;
     ));
 
     $self->write_xs_files if $self->xs;
@@ -203,7 +202,9 @@ sub write_xs_files {
         hello()
         CODE:
         {
-            ST(0) = newSVpvs_flags("Hello, world!", SVs_TEMP);
+          SV* const hello = sv_2mortal(newSVpv("hello", 5));
+          XPUSHs(hello);
+          XSRETURN(1);
         }
     ));
 
@@ -216,7 +217,7 @@ sub write_xs_files {
         package MyBuilder;
         use strict;
         use warnings;
-        use parent 'Module::Build';
+        use base 'Module::Build';
 
         sub new {
             my $class = shift;
