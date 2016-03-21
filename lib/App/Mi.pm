@@ -144,6 +144,7 @@ sub prepare_files {
 
     my $email = $self->email;
     path( "lib/" . ($self->module =~ s{::}{/}gr) . ".pm" )->replace(sub {
+        s{\Q'0.01'}{'0.001'};
         s{\nuse strict;\nuse 5.008_005;}{use strict;\nuse warnings;\n};
         s{=head1 SEE ALSO\n\n}{};
         s{\QE<lt>}{<}g; s{\QE<gt>}{>}g;
