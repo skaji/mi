@@ -121,6 +121,7 @@ sub prepare_files {
         language: perl
         sudo: false
         perl:
+          - "5.24"
           - "5.22"
           - "5.20"
           - "5.18"
