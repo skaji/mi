@@ -1,2 +1,2 @@
 #!perl
-use App::Mi; App::Mi->new->parse_options(@ARGV)->run;
+(require App::Mi)->run(@ARGV);

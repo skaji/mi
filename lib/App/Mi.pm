@@ -1,8 +1,6 @@
-package App::Mi;
 use 5.14.0;
-use warnings;
+package App::Mi 0.01;
 
-our $VERSION = '0.01';
 use Getopt::Long qw(:config no_auto_abbrev no_ignore_case bundling);
 use Moose;
 use Dist::Milla::App;
@@ -36,7 +34,10 @@ sub parse_options {
 }
 
 sub run {
-    my $self = shift;
+    my $class = shift;
+    my $self = $class->new;
+    $self->parse_options(@_);
+
     milla "new", $self->module;
     chdir $self->dir or exit 1;
 
@@ -229,8 +230,7 @@ sub write_xs_files {
     ));
 }
 
-
-1;
+{ no warnings; __PACKAGE__ }
 __END__
 
 =encoding utf-8
