@@ -132,13 +132,7 @@ sub prepare_files {
           - "5.8"
     ));
 
-    path("cpanfile")->spew(here qq(
-        requires 'perl', '5.008005';
-
-        on test => sub {
-            requires 'Test::More', '0.98';
-        };
-    ));
+    path("cpanfile")->spew("requires 'perl', '5.008005';\n");
     path("Changes")->replace(sub {
         s{^\s+-}{    -}smg;
     });
@@ -156,10 +150,9 @@ sub prepare_files {
     path("t/00_use.t")->spew(here qq(
         use strict;
         use warnings;
-        use Test::More;
+        use Test::More tests => 1;
         use @{[ $self->module ]};
         pass "happy hacking!";
-        done_testing;
     ));
 
     $self->write_xs_files if $self->xs;
