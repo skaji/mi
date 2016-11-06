@@ -111,14 +111,22 @@ sub prepare_files {
     }
 
     path("dist.ini")->spew(here qq(
-        name = @{[ $self->dir ]}
-
         $ini
         [GitHubREADME::Badge]
         badges = travis
+
+        [PruneFiles]
+        match = ^xt/
+        match = ^author/
     ));
 
-    path(".travis.yml")->spew(here q(
+    my $travis;
+    if ($self->xs) {
+        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 prove -b t";
+    } else {
+        $travis = "prove -l t";
+    }
+    path(".travis.yml")->spew(here qq(
         language: perl
         sudo: false
         perl:
@@ -131,6 +139,10 @@ sub prepare_files {
           - "5.12"
           - "5.10"
           - "5.8"
+        install:
+          - cpanm -nq --installdeps --with-develop .
+        script:
+          - $travis
     ));
 
     path("cpanfile")->spew("requires 'perl', '5.008005';\n");
