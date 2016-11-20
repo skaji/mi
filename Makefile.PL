@@ -2,12 +2,12 @@
 use strict;
 use warnings;
 
-use 5.014000;
+use 5.025007;
 
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "wrapper for milla new",
+  "ABSTRACT" => "my personal favorite for milla new",
   "AUTHOR" => "Shoichi Kaji <skaji\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0
@@ -17,14 +17,11 @@ my %WriteMakefileArgs = (
     "script/mi"
   ],
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.014000",
+  "MIN_PERL_VERSION" => "5.025007",
   "NAME" => "App::Mi",
   "PREREQ_PM" => {
     "Dist::Milla" => 0,
     "Path::Tiny" => 0
-  },
-  "TEST_REQUIRES" => {
-    "Test::More" => "0.98"
   },
   "VERSION" => "0.01",
   "test" => {
@@ -35,8 +32,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Dist::Milla" => 0,
-  "Path::Tiny" => 0,
-  "Test::More" => "0.98"
+  "Path::Tiny" => 0
 );
 
 

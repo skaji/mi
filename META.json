@@ -1,5 +1,5 @@
 {
-   "abstract" : "wrapper for milla new",
+   "abstract" : "my personal favorite for milla new",
    "author" : [
       "Shoichi Kaji <skaji@cpan.org>"
    ],
@@ -42,12 +42,7 @@
          "requires" : {
             "Dist::Milla" : "0",
             "Path::Tiny" : "0",
-            "perl" : "v5.14.0"
-         }
-      },
-      "test" : {
-         "requires" : {
-            "Test::More" : "0.98"
+            "perl" : "v5.25.7"
          }
       }
    },
@@ -64,7 +59,7 @@
       }
    },
    "version" : "0.01",
-   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0222",
+   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0223",
    "x_static_install" : "1"
 }
 
