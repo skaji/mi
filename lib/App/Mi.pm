@@ -81,7 +81,7 @@ sub prepare_files {
     /pm_to_blib
     .DS_Store
     *.o
-    *.c
+    lib/**/*.c
     ___
 
     my $ini;
@@ -137,6 +137,13 @@ sub prepare_files {
     ___
 
     path("cpanfile")->spew("requires 'perl', '5.008005';\n");
+    path("cpanfile")->append(<<~'___') if $self->xs;
+
+    on test => sub {
+        requires 'Test::More', '0.98';
+        requires 'Test::LeakTrace';
+    };
+    ___
     path("Changes")->replace(sub {
         s{^\s+-}{    -}smg;
     });
@@ -157,6 +164,19 @@ sub prepare_files {
     use Test::More tests => 1;
     use @{[ $self->module ]};
     pass "happy hacking!";
+    ___
+    path("t/01_leak.t")->spew(<<~"___") if $self->xs;
+    use strict;
+    use warnings;
+    use Test::More;
+    use Test::LeakTrace;
+    use @{[ $self->module ]};
+
+    no_leaks_ok {
+        # TODO
+    };
+
+    done_testing;
     ___
 
     $self->write_xs_files if $self->xs;
