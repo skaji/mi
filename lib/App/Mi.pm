@@ -41,7 +41,7 @@ sub run {
     milla "new", $self->module;
     chdir $self->dir or exit 1;
 
-    unlink $_ for qw(Build.PL t/basic.t);
+    unlink $_ for qw(t/basic.t);
     mkdir $_ for qw(script xt);
 
     $self->prepare_files;
@@ -94,7 +94,6 @@ sub prepare_files {
     } else {
         $ini = <<~'___';
         [@Milla]
-        installer = MakeMaker
 
         [Metadata]
         x_static_install = 1
