@@ -120,15 +120,15 @@ sub prepare_files {
     language: perl
     sudo: false
     perl:
-      - "5.24"
-      - "5.22"
-      - "5.20"
-      - "5.18"
-      - "5.16"
-      - "5.14"
-      - "5.12"
-      - "5.10"
       - "5.8"
+      - "5.10"
+      - "5.12"
+      - "5.14"
+      - "5.16"
+      - "5.18"
+      - "5.20"
+      - "5.22"
+      - "5.24"
     install:
       - cpanm -nq --installdeps --with-develop .
     script:
@@ -153,7 +153,7 @@ sub prepare_files {
         s{\nuse strict;\nuse 5.008_005;}{use strict;\nuse warnings;\n};
         s{=head1 SEE ALSO\n\n}{};
         s{\QE<lt>}{<}g; s{\QE<gt>}{>}g;
-        s{= head1\s+LICENSE\n\n}{}x;
+        s{=head1\s+LICENSE\n\n}{}x;
         s{head1 COPYRIGHT}{head1 COPYRIGHT AND LICENSE};
         s{Copyright (\d+)- ([^\n]+)}{Copyright $1 $2 <$email>};
     });
