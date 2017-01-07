@@ -81,7 +81,9 @@ sub prepare_files {
     /pm_to_blib
     .DS_Store
     *.o
+    *~
     lib/**/*.c
+    /temp
     ___
 
     my $ini;
@@ -107,7 +109,7 @@ sub prepare_files {
 
     [PruneFiles]
     match = ^xt/
-    match = ^author/
+    match = ^maint/
     ___
 
     my $travis;
