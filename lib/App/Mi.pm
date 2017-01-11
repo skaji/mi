@@ -96,9 +96,7 @@ sub prepare_files {
     } else {
         $ini = <<~'___';
         [@Milla]
-
-        [Metadata]
-        x_static_install = 1
+        ModuleBuildTiny.static = yes
         ___
     }
 

@@ -42,7 +42,7 @@
          "requires" : {
             "Dist::Milla" : "0",
             "Path::Tiny" : "0",
-            "perl" : "v5.25.7"
+            "perl" : "v5.25.9"
          }
       }
    },
@@ -60,6 +60,6 @@
    },
    "version" : "0.01",
    "x_serialization_backend" : "Cpanel::JSON::XS version 3.0225",
-   "x_static_install" : "1"
+   "x_static_install" : 1
 }
 
