@@ -1,4 +1,4 @@
-use 5.25.7;
+use 5.24.0;
 package App::Mi 0.01;
 
 use Getopt::Long qw(:config no_auto_abbrev no_ignore_case bundling);
@@ -17,6 +17,15 @@ has github_host => (is => 'rw', default => sub { _capture "git config --global g
 has xs     => (is => 'rw');
 has module => (is => 'rw');
 has dir    => (is => 'rw', default => sub { shift->module =~ s/::/-/gr }, lazy => 1);
+
+sub trim {
+    my $str = shift;
+    if ($str =~ /^(\s+)/) {
+        my $space = $1;
+        $str =~ s/^$space//smg;
+    }
+    $str;
+}
 
 sub parse_options {
     my $self = shift;
@@ -69,7 +78,7 @@ package Path::Tiny {
 sub prepare_files {
     my $self = shift;
 
-    path(".gitignore")->append(<<~'___');
+    path(".gitignore")->append(trim <<'___');
     /.carmel/
     /MANIFEST
     /META.yml
@@ -84,23 +93,23 @@ sub prepare_files {
     *~
     lib/**/*.c
     /temp
-    ___
+___
 
     my $ini;
     if ($self->xs) {
-        $ini = <<~'___';
+        $ini = trim <<'___';
         [@Milla]
         installer = ModuleBuild
         ModuleBuild.mb_class = MyBuilder
-        ___
+___
     } else {
-        $ini = <<~'___';
+        $ini = trim <<'___';
         [@Milla]
         ModuleBuildTiny.static = yes
-        ___
+___
     }
 
-    path("dist.ini")->spew(<<~"___");
+    path("dist.ini")->spew(trim <<"___");
     $ini
     [GitHubREADME::Badge]
     badges = travis
@@ -108,7 +117,7 @@ sub prepare_files {
     [PruneFiles]
     match = ^xt/
     match = ^maint/
-    ___
+___
 
     my $travis;
     if ($self->xs) {
@@ -116,7 +125,7 @@ sub prepare_files {
     } else {
         $travis = "prove -l t";
     }
-    path(".travis.yml")->spew(<<~"___");
+    path(".travis.yml")->spew(trim <<"___");
     language: perl
     sudo: false
     perl:
@@ -133,16 +142,15 @@ sub prepare_files {
       - cpanm -nq --installdeps --with-develop .
     script:
       - $travis
-    ___
+___
 
-    path("cpanfile")->spew("requires 'perl', '5.008005';\n");
-    path("cpanfile")->append(<<~'___') if $self->xs;
-
+    path("cpanfile")->spew("requires 'perl', '5.008001';\n");
+    path("cpanfile")->append("\n" . trim <<'___') if $self->xs;
     on test => sub {
         requires 'Test::More', '0.98';
         requires 'Test::LeakTrace';
     };
-    ___
+___
     path("Changes")->replace(sub {
         s{^\s+-}{    -}smg;
     });
@@ -157,14 +165,14 @@ sub prepare_files {
         s{head1 COPYRIGHT}{head1 COPYRIGHT AND LICENSE};
         s{Copyright (\d+)- ([^\n]+)}{Copyright $1 $2 <$email>};
     });
-    path("t/00_use.t")->spew(<<~"___");
+    path("t/00_use.t")->spew(trim <<"___");
     use strict;
     use warnings;
     use Test::More tests => 1;
     use @{[ $self->module ]};
     pass "happy hacking!";
-    ___
-    path("t/01_leak.t")->spew(<<~"___") if $self->xs;
+___
+    path("t/01_leak.t")->spew(trim <<"___") if $self->xs;
     use strict;
     use warnings;
     use Test::More;
@@ -176,7 +184,7 @@ sub prepare_files {
     };
 
     done_testing;
-    ___
+___
 
     $self->write_xs_files if $self->xs;
 }
@@ -187,15 +195,15 @@ sub write_xs_files {
     $path =~ s{::}{/}g;
     $path = "lib/$path";
 
-    my $load = <<~'___';
+    my $load = trim <<'___';
     use XSLoader;
     XSLoader::load(__PACKAGE__, $VERSION);
-    ___
+___
     path("$path.pm")->replace(sub {
         s{1;\n}{$load\n1;\n};
     });
 
-    path("$path.xs")->spew(<<~"___");
+    path("$path.xs")->spew(trim <<"___");
     #ifdef __cplusplus
     extern "C" {
     #endif
@@ -224,14 +232,14 @@ sub write_xs_files {
       XPUSHs(hello);
       XSRETURN(1);
     }
-    ___
+___
 
     my $dirname = path($path)->dirname;
     require Devel::PPPort;
     Devel::PPPort::WriteFile("$dirname/ppport.h");
 
     mkdir "inc";
-    path("inc/MyBuilder.pm")->spew(<<~'___');
+    path("inc/MyBuilder.pm")->spew(trim <<'___');
     package MyBuilder;
     use strict;
     use warnings;
@@ -249,10 +257,10 @@ sub write_xs_files {
     }
 
     1;
-    ___
+___
 }
 
-{ no warnings; __PACKAGE__ }
+1;
 __END__
 
 =encoding utf-8

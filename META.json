@@ -42,7 +42,7 @@
          "requires" : {
             "Dist::Milla" : "0",
             "Path::Tiny" : "0",
-            "perl" : "v5.25.9"
+            "perl" : "v5.24.0"
          }
       }
    },

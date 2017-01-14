@@ -1,2 +1,2 @@
 #!perl
-(require App::Mi)->run(@ARGV);
+use App::Mi; App::Mi->run(@ARGV);

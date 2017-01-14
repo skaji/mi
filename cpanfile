@@ -1,3 +1,3 @@
-requires 'perl', '5.25.9';
+requires 'perl', '5.24.0';
 requires 'Dist::Milla';
 requires 'Path::Tiny';
