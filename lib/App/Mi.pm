@@ -1,51 +1,56 @@
 use 5.24.0;
 package App::Mi 0.01;
 
-use Getopt::Long qw(:config no_auto_abbrev no_ignore_case bundling);
-use Moose;
 use Dist::Milla::App;
+use Getopt::Long ();
+use Moose;
+use Path::Tiny 'path';
+use experimental 'signatures';
 
-sub milla { local @ARGV = @_; state $app = Dist::Milla::App->new; $app->run }
-sub _capture { chomp( my $s = `$_[0]` ); $? == 0 or die "Failed $_[0]\n"; $s }
-sub _system { return !system @_ }
+sub Path::Tiny::replace ($self, $sub) {
+    local $_ = $self->slurp;
+    $sub->();
+    $self->spew($_);
+}
 
-has user  => (is => 'rw', default => sub { _capture "git config --global user.name" });
-has email => (is => 'rw', default => sub { _capture "git config --global user.email" });
-has github_user => (is => 'rw', default => sub { _capture "git config --global github.user" });
+sub milla   (@argv) { local @ARGV = @argv; state $app = Dist::Milla::App->new; $app->run }
+sub _capture ($cmd) { chomp( my $s = `$cmd` ); $? == 0 or die "Failed $cmd\n"; $s }
+sub _system (@argv) { return !system @argv }
+
+has dir         => (is => 'rw', default => sub { shift->module =~ s/::/-/gr }, lazy => 1);
+has email       => (is => 'rw', default => sub { _capture "git config --global user.email" });
 has github_host => (is => 'rw', default => sub { _capture "git config --global github.host" });
+has github_user => (is => 'rw', default => sub { _capture "git config --global github.user" });
+has module      => (is => 'rw');
+has user        => (is => 'rw', default => sub { _capture "git config --global user.name" });
+has xs          => (is => 'rw');
 
-has xs     => (is => 'rw');
-has module => (is => 'rw');
-has dir    => (is => 'rw', default => sub { shift->module =~ s/::/-/gr }, lazy => 1);
-
-sub trim {
-    my $str = shift;
-    if ($str =~ /^(\s+)/) {
-        my $space = $1;
+sub trim ($str) {
+    if (my ($space) = $str =~ /^(\s+)/) {
         $str =~ s/^$space//smg;
     }
     $str;
 }
 
-sub parse_options {
-    my $self = shift;
-    local @ARGV = @_;
-    GetOptions
+sub parse_options ($self, @argv) {
+    my $parser = Getopt::Long::Parser->new(
+        config => [qw(no_auto_abbrev no_ignore_case bundling)],
+    );
+    $parser->getoptionsfromarray(\@argv,
         "x|xs" => sub { $self->xs(1) },
         "h|help" => sub { print "Usage:\n  > mi Module\n  > mi --xs Module\n"; exit },
-    or exit 1;
-    my $module = shift @ARGV;
-    $module = shift @ARGV if $module && $module eq "new";
+    ) or exit 1;
+    my $module = shift @argv;
+    $module = shift @argv if $module && $module eq "new";
     die "Missing module argument\n" unless $module;
     $module =~ s/-/::/g;
     $self->module($module);
     $self;
 }
 
-sub run {
-    my $class = shift;
+sub run ($class, @argv) {
     my $self = $class->new;
-    $self->parse_options(@_);
+    $self->parse_options(@argv);
 
     milla "new", $self->module;
     chdir $self->dir or exit 1;
@@ -55,29 +60,15 @@ sub run {
 
     $self->prepare_files;
 
-    my $repo = sprintf 'ssh://git@%s/%s/%s.git',
-        $self->github_host, $self->github_user, $self->dir;
-    _system "git remote add origin $repo" or exit 1;
-    _system "git add --all" or exit 1;
+    my $repo = sprintf 'ssh://git@%s/%s/%s.git', $self->github_host, $self->github_user, $self->dir;
+    _system "git", "remote", "add", "origin", $repo or exit 1;
+    _system "git", "add", "--all" or exit 1;
     milla "build", "--no-tgz";
     milla "clean";
-    _system "git add ." or exit;
+    _system "git", "add", "." or exit;
 }
 
-use Path::Tiny;
-package Path::Tiny {
-    sub replace {
-        my ($self, $sub) = @_;
-        local $_ = $self->slurp;
-        $sub->();
-        $self->spew($_);
-        $self;
-    }
-}
-
-sub prepare_files {
-    my $self = shift;
-
+sub prepare_files ($self) {
     path(".gitignore")->append(trim <<'___');
     /.carmel/
     /MANIFEST
@@ -189,8 +180,7 @@ ___
     $self->write_xs_files if $self->xs;
 }
 
-sub write_xs_files {
-    my $self = shift;
+sub write_xs_files ($self) {
     my $path = $self->module;
     $path =~ s{::}{/}g;
     $path = "lib/$path";
