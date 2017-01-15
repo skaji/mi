@@ -107,7 +107,6 @@ ___
 
     [PruneFiles]
     match = ^xt/
-    match = ^maint/
 ___
 
     my $travis;
