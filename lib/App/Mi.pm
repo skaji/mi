@@ -104,9 +104,6 @@ ___
     $ini
     [GitHubREADME::Badge]
     badges = travis
-
-    [PruneFiles]
-    match = ^xt/
 ___
 
     my $travis;
