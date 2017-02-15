@@ -15,7 +15,7 @@ sub Path::Tiny::replace ($self, $sub) {
 
 sub milla   (@argv) { local @ARGV = @argv; state $app = Dist::Milla::App->new; $app->run }
 sub _capture ($cmd) { chomp( my $s = `$cmd` ); $? == 0 or die "Failed $cmd\n"; $s }
-sub _system (@argv) { return !system @argv }
+sub _system (@argv) { !system @argv or die "Failed @argv\n" }
 
 has dir         => (is => 'rw', default => sub { shift->module =~ s/::/-/gr }, lazy => 1);
 has email       => (is => 'rw', default => sub { _capture "git config --global user.email" });
@@ -61,11 +61,11 @@ sub run ($class, @argv) {
     $self->prepare_files;
 
     my $repo = sprintf 'ssh://git@%s/%s/%s.git', $self->github_host, $self->github_user, $self->dir;
-    _system "git", "remote", "add", "origin", $repo or exit 1;
-    _system "git", "add", "--all" or exit 1;
+    _system "git", "remote", "add", "origin", $repo;
+    _system "git", "add", "--all";
     milla "build", "--no-tgz";
     milla "clean";
-    _system "git", "add", "." or exit;
+    _system "git", "add", ".";
 }
 
 sub prepare_files ($self) {
