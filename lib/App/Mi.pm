@@ -111,13 +111,9 @@ sub prepare_files ($self) {
     perl:
       - "5.8"
       - "5.10"
-      - "5.12"
-      - "5.14"
       - "5.16"
-      - "5.18"
-      - "5.20"
-      - "5.22"
       - "5.24"
+      - "5.26"
     install:
       - cpanm -nq --installdeps --with-develop .
     script:
