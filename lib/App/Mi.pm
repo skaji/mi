@@ -115,7 +115,7 @@ sub prepare_files ($self) {
       - "5.24"
       - "5.26"
     install:
-      - cpanm -nq --installdeps --with-develop .
+      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop
     script:
       - $travis
     ___
