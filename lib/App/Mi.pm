@@ -101,9 +101,9 @@ sub prepare_files ($self) {
 
     my $travis;
     if ($self->xs) {
-        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 prove -b t";
+        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 yath -b t";
     } else {
-        $travis = "prove -l t";
+        $travis = "yath -l t";
     }
     path(".travis.yml")->spew(<<~"___");
     language: perl
@@ -112,7 +112,6 @@ sub prepare_files ($self) {
       - "5.8"
       - "5.10"
       - "5.16"
-      - "5.24"
       - "5.26"
     install:
       - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop
@@ -120,7 +119,13 @@ sub prepare_files ($self) {
       - $travis
     ___
 
-    path("cpanfile")->spew("requires 'perl', '5.008001';\n");
+    path("cpanfile")->spew(<<~'___');
+    requires 'perl', '5.008001';
+
+    on develop => sub {
+        requires 'Test2::Harness';
+    };
+    ___
     path("cpanfile")->append("\n" . <<~'___') if $self->xs;
     on test => sub {
         requires 'Test::More', '0.98';
