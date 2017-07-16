@@ -9,6 +9,13 @@ use Moose;
 use Path::Tiny 'path';
 use experimental 'signatures';
 
+my $HELP = <<~'___';
+Usage: mi [options] Module
+ -x, --xs       create XS module
+ -h, --help     show this help
+ -v, --verbose  make mi verbose
+___
+
 sub Path::Tiny::replace ($self, $sub) {
     local $_ = $self->slurp;
     $sub->();
@@ -39,7 +46,7 @@ sub parse_options ($self, @argv) {
     );
     $parser->getoptionsfromarray(\@argv,
         "x|xs" => sub { $self->xs(1) },
-        "h|help" => sub { print "Usage:\n  > mi Module\n  > mi --xs Module\n"; exit },
+        "h|help" => sub { print $HELP; exit },
         "v|verbose" => sub { $self->verbose(1) },
     ) or exit 1;
     my $module = shift @argv;
