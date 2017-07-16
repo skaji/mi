@@ -189,6 +189,8 @@ sub prepare_files ($self) {
     path(".appveyor.yml")->spew(<<~'___') unless $self->xs;
     build: off
     shallow_clone: true
+    skip_tags: true
+    skip_branch_with_pr: true
     init:
       - git config --global core.autocrlf input
     install:
