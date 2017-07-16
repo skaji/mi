@@ -1,7 +1,9 @@
 use 5.26.0;
 package App::Mi 0.01;
 
+use Capture::Tiny 'capture';
 use Dist::Milla::App;
+use File::pushd 'pushd';
 use Getopt::Long ();
 use Moose;
 use Path::Tiny 'path';
@@ -13,10 +15,10 @@ sub Path::Tiny::replace ($self, $sub) {
     $self->spew($_);
 }
 
-sub milla   (@argv) { local @ARGV = @argv; state $app = Dist::Milla::App->new; $app->run }
 sub _capture ($cmd) { chomp( my $s = `$cmd` ); $? == 0 or die "Failed $cmd\n"; $s }
 sub _system (@argv) { !system @argv or die "Failed @argv\n" }
 
+has milla       => (is => 'rw', default => sub { Dist::Milla::App->new });
 has dir         => (is => 'rw', default => sub { shift->module =~ s/::/-/gr }, lazy => 1);
 has email       => (is => 'rw', default => sub { _capture "git config --global user.email" });
 has github_host => (is => 'rw', default => sub { _capture "git config --global github.host" });
@@ -24,6 +26,12 @@ has github_user => (is => 'rw', default => sub { _capture "git config --global g
 has module      => (is => 'rw');
 has user        => (is => 'rw', default => sub { _capture "git config --global user.name" });
 has xs          => (is => 'rw');
+has verbose     => (is => 'rw');
+
+sub milla_run ($self, @argv) {
+    local @ARGV = @argv;
+    $self->verbose ? $self->milla->run : capture { $self->milla->run };
+}
 
 sub parse_options ($self, @argv) {
     my $parser = Getopt::Long::Parser->new(
@@ -32,6 +40,7 @@ sub parse_options ($self, @argv) {
     $parser->getoptionsfromarray(\@argv,
         "x|xs" => sub { $self->xs(1) },
         "h|help" => sub { print "Usage:\n  > mi Module\n  > mi --xs Module\n"; exit },
+        "v|verbose" => sub { $self->verbose(1) },
     ) or exit 1;
     my $module = shift @argv;
     $module = shift @argv if $module && $module eq "new";
@@ -45,8 +54,8 @@ sub run ($class, @argv) {
     my $self = $class->new;
     $self->parse_options(@argv);
 
-    milla "new", $self->module;
-    chdir $self->dir or exit 1;
+    $self->milla_run(new => $self->module);
+    my $guard = pushd $self->dir;
 
     unlink $_ for qw(t/basic.t);
     mkdir $_ for qw(script xt);
@@ -56,9 +65,10 @@ sub run ($class, @argv) {
     my $repo = sprintf 'ssh://git@%s/%s/%s.git', $self->github_host, $self->github_user, $self->dir;
     _system "git", "remote", "add", "origin", $repo;
     _system "git", "add", "--all";
-    milla "build", "--no-tgz";
-    milla "clean";
+    $self->milla_run("build", "--no-tgz");
+    $self->milla_run("clean");
     _system "git", "add", ".";
+    warn "Successfully created @{[$self->dir]}\n" unless $self->verbose;
 }
 
 sub prepare_files ($self) {
@@ -85,19 +95,21 @@ sub prepare_files ($self) {
         [@Milla]
         installer = ModuleBuild
         ModuleBuild.mb_class = MyBuilder
+
+        [GitHubREADME::Badge]
+        badges = travis
         ___
     } else {
         $ini = <<~'___';
         [@Milla]
         ModuleBuildTiny.static = yes
+
+        [GitHubREADME::Badge]
+        badges = travis
+        badges = appveyor
         ___
     }
-
-    path("dist.ini")->spew(<<~"___");
-    $ini
-    [GitHubREADME::Badge]
-    badges = travis
-    ___
+    path("dist.ini")->spew($ini);
 
     my $travis;
     if ($self->xs) {
@@ -165,6 +177,19 @@ sub prepare_files ($self) {
     };
 
     done_testing;
+    ___
+
+    path(".appveyor.yml")->spew(<<~'___') unless $self->xs;
+    build: off
+    shallow_clone: true
+    init:
+      - git config --global core.autocrlf input
+    install:
+      - choco install strawberryperl --version 5.26.0.1
+      - SET "PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%"
+      - cpanm -nq --installdeps --with-develop .
+    test_script:
+      - yath -l t
     ___
 
     $self->write_xs_files if $self->xs;
