@@ -113,16 +113,15 @@ sub prepare_files ($self) {
 
         [GitHubREADME::Badge]
         badges = travis
-        badges = appveyor
         ___
     }
     path("dist.ini")->spew($ini);
 
     my $travis;
     if ($self->xs) {
-        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 yath -b t";
+        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 yath test t";
     } else {
-        $travis = "yath -l t";
+        $travis = "yath test t";
     }
     path(".travis.yml")->spew(<<~"___");
     language: perl
@@ -184,21 +183,6 @@ sub prepare_files ($self) {
     };
 
     done_testing;
-    ___
-
-    path(".appveyor.yml")->spew(<<~'___') unless $self->xs;
-    build: off
-    shallow_clone: true
-    skip_tags: true
-    skip_branch_with_pr: true
-    init:
-      - git config --global core.autocrlf input
-    install:
-      - choco install strawberryperl --version 5.26.0.1
-      - SET "PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%"
-      - cpanm -nq --installdeps --with-develop .
-    test_script:
-      - yath -l t
     ___
 
     $self->write_xs_files if $self->xs;
