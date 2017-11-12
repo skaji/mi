@@ -139,10 +139,6 @@ sub prepare_files ($self) {
 
     path("cpanfile")->spew(<<~'___');
     requires 'perl', '5.008001';
-
-    on develop => sub {
-        requires 'Test2::Harness';
-    };
     ___
     path("cpanfile")->append("\n" . <<~'___') if $self->xs;
     on test => sub {
