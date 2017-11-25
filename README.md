@@ -9,13 +9,7 @@ App::Mi - my personal favorite for milla new
 
 # INSTALL
 
-If you have [cpm](https://metacpan.org/pod/cpm), then
-
     > cpm install -g git://github.com/skaji/mi.git
-
-Otherwise
-
-    > cpanm -nq git://github.com/skaji/mi.git
 
 # SETUP
 

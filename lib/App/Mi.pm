@@ -1,4 +1,4 @@
-use 5.26.0;
+use 5.26.1;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -119,9 +119,9 @@ sub prepare_files ($self) {
 
     my $travis;
     if ($self->xs) {
-        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 yath test t";
+        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 prove -b t";
     } else {
-        $travis = "yath test t";
+        $travis = "prove -l t";
     }
     path(".travis.yml")->spew(<<~"___");
     language: perl
@@ -219,7 +219,7 @@ sub write_xs_files ($self) {
     PROTOTYPES: DISABLE
 
     void
-    hello()
+    hello(...)
     CODE:
     {
       SV* const hello = sv_2mortal(newSVpv("hello", 5));
@@ -271,13 +271,7 @@ App::Mi - my personal favorite for milla new
 
 =head1 INSTALL
 
-If you have L<cpm>, then
-
   > cpm install -g git://github.com/skaji/mi.git
-
-Otherwise
-
-  > cpanm -nq git://github.com/skaji/mi.git
 
 =head1 SETUP
 
