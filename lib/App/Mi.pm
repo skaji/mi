@@ -220,9 +220,17 @@ sub write_xs_files ($self) {
 
     void
     hello(...)
-    CODE:
+    PPCODE:
     {
-      SV* const hello = sv_2mortal(newSVpv("hello", 5));
+      if (items != 1) {
+        croak("items != 1");
+      }
+      SV* name = ST(0);
+      STRLEN name_len;
+      const char* name_char = SvPV(name, name_len);
+      // SV* hello = sv_2mortal(newSVpvn("hello ", 6));
+      SV* hello = newSVpvn_flags("hello ", 6, SVs_TEMP);
+      sv_catpvn(hello, name_char, name_len);
       XPUSHs(hello);
       XSRETURN(1);
     }
