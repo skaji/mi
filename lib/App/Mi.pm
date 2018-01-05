@@ -3,6 +3,7 @@ package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
 use Dist::Milla::App;
+use File::Spec;
 use File::pushd 'pushd';
 use Getopt::Long ();
 use Moose;
@@ -185,18 +186,13 @@ sub prepare_files ($self) {
 }
 
 sub write_xs_files ($self) {
-    my $path = $self->module;
-    $path =~ s{::}{/}g;
-    $path = "lib/$path";
+    my $path = File::Spec->catfile("lib", $self->module =~ s{::}{/}gr);
 
     my $load = <<~'___';
     use XSLoader;
     XSLoader::load(__PACKAGE__, $VERSION);
     ___
-    path("$path.pm")->replace(sub {
-        s{1;\n}{$load\n1;\n};
-    });
-
+    path("$path.pm")->replace(sub { s{1;\n}{$load\n1;\n} });
     path("$path.xs")->spew(<<~"___");
     #ifdef __cplusplus
     extern "C" {
