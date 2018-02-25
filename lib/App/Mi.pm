@@ -106,6 +106,8 @@ sub prepare_files ($self) {
 
         [GitHubREADME::Badge]
         badges = travis
+
+        [MetaProvides::Package]
         ___
     } else {
         $ini = <<~'___';
@@ -114,6 +116,8 @@ sub prepare_files ($self) {
 
         [GitHubREADME::Badge]
         badges = travis
+
+        [MetaProvides::Package]
         ___
     }
     path("dist.ini")->spew($ini);

@@ -49,6 +49,12 @@
          }
       }
    },
+   "provides" : {
+      "App::Mi" : {
+         "file" : "lib/App/Mi.pm",
+         "version" : "0.01"
+      }
+   },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
