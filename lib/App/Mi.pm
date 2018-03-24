@@ -108,6 +108,8 @@ sub prepare_files ($self) {
         badges = travis
 
         [MetaProvides::Package]
+        inherit_version = 0
+        inherit_missing = 0
         ___
     } else {
         $ini = <<~'___';
@@ -118,6 +120,8 @@ sub prepare_files ($self) {
         badges = travis
 
         [MetaProvides::Package]
+        inherit_version = 0
+        inherit_missing = 0
         ___
     }
     path("dist.ini")->spew($ini);
