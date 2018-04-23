@@ -114,7 +114,6 @@ sub prepare_files ($self) {
     } else {
         $ini = <<~'___';
         [@Milla]
-        ModuleBuildTiny.static = yes
 
         [GitHubREADME::Badge]
         badges = travis
