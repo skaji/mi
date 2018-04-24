@@ -43,9 +43,11 @@
          "requires" : {
             "Capture::Tiny" : "0",
             "Dist::Milla" : "v1.0.20",
+            "Dist::Zilla::Plugin::GitHubREADME::Badge" : "0",
+            "Dist::Zilla::Plugin::MetaProvides::Package" : "0",
             "File::pushd" : "0",
             "Path::Tiny" : "0",
-            "perl" : "v5.26.1"
+            "perl" : "v5.26.2"
          }
       }
    },
