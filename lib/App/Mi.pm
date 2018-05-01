@@ -1,4 +1,4 @@
-use 5.26.1;
+use 5.26.2;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -117,6 +117,7 @@ sub prepare_files ($self) {
 
         [GitHubREADME::Badge]
         badges = travis
+        badges = appveyor
 
         [MetaProvides::Package]
         inherit_version = 0
@@ -140,9 +141,24 @@ sub prepare_files ($self) {
       - "5.16"
       - "5.26"
     install:
-      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop
+      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
     script:
       - $travis
+    ___
+
+    path(".appveyor.yml")->spew(<<~'___') if !$self->xs;
+    build: off
+    shallow_clone: true
+    skip_tags: true
+    skip_branch_with_pr: true
+    init:
+      - git config --global core.autocrlf input
+    install:
+      - choco install strawberryperl
+      - SET "PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%"
+      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
+    test_script:
+      - prove -lv t
     ___
 
     path("cpanfile")->spew(<<~'___');
