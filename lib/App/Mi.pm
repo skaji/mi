@@ -105,7 +105,7 @@ sub prepare_files ($self) {
         ModuleBuild.mb_class = MyBuilder
 
         [GitHubREADME::Badge]
-        badges = travis
+        badges = travis-ci.com
 
         [MetaProvides::Package]
         inherit_version = 0
