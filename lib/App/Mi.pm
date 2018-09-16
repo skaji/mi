@@ -253,7 +253,6 @@ sub write_xs_files ($self) {
       XSRETURN(1);
     }
     ___
-    # / workaround PPI https://github.com/adamkennedy/PPI/issues/203
 
     my $dirname = path($path)->dirname;
     require Devel::PPPort;
