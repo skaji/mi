@@ -1,4 +1,4 @@
-requires 'perl', '5.26.2';
+requires 'perl', '5.28.0';
 
 requires 'Capture::Tiny';
 requires 'Dist::Milla', 'v1.0.20';

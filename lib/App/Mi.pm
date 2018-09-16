@@ -1,4 +1,4 @@
-use 5.26.2;
+use 5.28.0;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -116,8 +116,7 @@ sub prepare_files ($self) {
         [@Milla]
 
         [GitHubREADME::Badge]
-        badges = travis
-        badges = appveyor
+        badges = travis-ci.com
 
         [MetaProvides::Package]
         inherit_version = 0
@@ -139,14 +138,14 @@ sub prepare_files ($self) {
       - "5.8"
       - "5.10"
       - "5.16"
-      - "5.26"
+      - "5.28"
     install:
-      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
+      - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
     script:
       - $travis
     ___
 
-    path(".appveyor.yml")->spew(<<~'___') if !$self->xs;
+    path(".appveyor.yml")->spew(<<~'___') if 0; # XXX
     build: off
     shallow_clone: true
     skip_tags: true
@@ -156,7 +155,7 @@ sub prepare_files ($self) {
     install:
       - choco install strawberryperl
       - SET "PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%"
-      - curl -sSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
+      - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
     test_script:
       - prove -lv t
     ___
