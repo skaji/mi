@@ -1,4 +1,4 @@
-use 5.28.0;
+use 5.28.1;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -125,15 +125,8 @@ sub prepare_files ($self) {
     }
     path("dist.ini")->spew($ini);
 
-    my $travis;
-    if ($self->xs) {
-        $travis = "perl Build.PL && ./Build && PERL_DL_NONLAZY=1 prove -b t";
-    } else {
-        $travis = "prove -l t";
-    }
     path(".travis.yml")->spew(<<~"___");
     language: perl
-    sudo: false
     perl:
       - "5.8"
       - "5.10"
@@ -142,8 +135,18 @@ sub prepare_files ($self) {
     install:
       - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
     script:
-      - $travis
     ___
+    if ($self->xs) {
+        path(".travis.yml")->append(<<~'___');
+          - perl Build.PL
+          - ./Build
+          - env PERL_DL_NONLAZY=1 prove -b t
+        ___
+    } else {
+        path(".travis.yml")->append(<<~'___');
+          - prove -l t
+        ___
+    }
 
     path(".appveyor.yml")->spew(<<~'___') if 0; # XXX
     build: off
