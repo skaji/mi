@@ -127,11 +127,15 @@ sub prepare_files ($self) {
 
     path(".travis.yml")->spew(<<~"___");
     language: perl
-    perl:
-      - "5.8"
-      - "5.10"
-      - "5.16"
-      - "5.28"
+    matrix:
+      include:
+        - perl: "5.8"
+          dist: trusty
+        - perl: "5.10"
+          dist: trusty
+        - perl: "5.16"
+          dist: trusty
+        - perl: "5.30"
     install:
       - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
     script:
