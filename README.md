@@ -1,30 +1,20 @@
-# NAME
+# mi
 
-App::Mi - my personal favorite for milla new
+My personal favorite template for CPAN distributions
 
-# SYNOPSIS
+## Usage
 
-    > mi Module
-    > mi --xs Module
+```
+> mi Foo::Bar
+> mi --xs Foo::Bar
+```
 
-# INSTALL
+## Install
 
-    > cpm install -g git://github.com/skaji/mi.git
+```
+> cpm install -g https://github.com/skaji/mi.git
+```
 
-# SETUP
+## License
 
-    # prepare ~/.dzil/config.ini
-    > dzil setup
-
-    # set some info in ~/.gitconfig
-    > git config --global user.name 'Shoichi Kaji'
-    > git config --global user.email 'skaji@cpan.org'
-    > git config --global github.host github.com  # change this if you use GHE
-    > git config --global github.host skaji
-
-# COPYRIGHT AND LICENSE
-
-Copyright 2016 Shoichi Kaji <skaji@cpan.org>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+The same as Perl 5

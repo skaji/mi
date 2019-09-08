@@ -1,4 +1,4 @@
-use 5.28.1;
+use 5.30.0;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -104,9 +104,6 @@ sub prepare_files ($self) {
         installer = ModuleBuild
         ModuleBuild.mb_class = MyBuilder
 
-        [GitHubREADME::Badge]
-        badges = travis-ci.com
-
         [MetaProvides::Package]
         inherit_version = 0
         inherit_missing = 0
@@ -115,9 +112,6 @@ sub prepare_files ($self) {
         $ini = <<~'___';
         [@Milla]
 
-        [GitHubREADME::Badge]
-        badges = travis-ci.com
-
         [MetaProvides::Package]
         inherit_version = 0
         inherit_missing = 0
@@ -125,46 +119,41 @@ sub prepare_files ($self) {
     }
     path("dist.ini")->spew($ini);
 
-    path(".travis.yml")->spew(<<~"___");
-    language: perl
-    matrix:
-      include:
-        - perl: "5.8"
-          dist: trusty
-        - perl: "5.10"
-          dist: trusty
-        - perl: "5.16"
-          dist: trusty
-        - perl: "5.30"
-    install:
-      - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
-    script:
-    ___
-    if ($self->xs) {
-        path(".travis.yml")->append(<<~'___');
-          - perl Build.PL
-          - ./Build
-          - env PERL_DL_NONLAZY=1 prove -b t
-        ___
-    } else {
-        path(".travis.yml")->append(<<~'___');
-          - prove -l t
-        ___
-    }
+    my $workflow = path(".github/workflows/linux.yml");
+    $workflow->parent->mkpath;
+    my $test = $self->xs
+             ? "perl Build.PL && ./Build && env PERL_DL_NONLAZY=1 prove -b t"
+             : 'prove -l t';
+    $workflow->spew(<<~"___");
+    name: linux
 
-    path(".appveyor.yml")->spew(<<~'___') if 0; # XXX
-    build: off
-    shallow_clone: true
-    skip_tags: true
-    skip_branch_with_pr: true
-    init:
-      - git config --global core.autocrlf input
-    install:
-      - choco install strawberryperl
-      - SET "PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%"
-      - curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-develop --with-recommends
-    test_script:
-      - prove -lv t
+    on:
+      - push
+
+    jobs:
+      perl:
+
+        runs-on: ubuntu-latest
+
+        strategy:
+          matrix:
+            perl-version:
+              - '5.8'
+              - '5.10'
+              - '5.16'
+              - 'latest'
+
+        container:
+          image: perl:\${{ matrix.perl-version }}
+
+        steps:
+          - uses: actions/checkout\@v1
+          - name: perl -V
+            run: perl -V
+          - name: Install Dependencies
+            run: curl -fsSL --compressed https://git.io/cpm | perl - install -g --with-configure --with-develop --with-recommends
+          - name: Run Tests
+            run: $test
     ___
 
     path("cpanfile")->spew(<<~'___');
@@ -288,39 +277,3 @@ sub write_xs_files ($self) {
 }
 
 1;
-__END__
-
-=encoding utf-8
-
-=head1 NAME
-
-App::Mi - my personal favorite for milla new
-
-=head1 SYNOPSIS
-
-  > mi Module
-  > mi --xs Module
-
-=head1 INSTALL
-
-  > cpm install -g git://github.com/skaji/mi.git
-
-=head1 SETUP
-
-  # prepare ~/.dzil/config.ini
-  > dzil setup
-
-  # set some info in ~/.gitconfig
-  > git config --global user.name 'Shoichi Kaji'
-  > git config --global user.email 'skaji@cpan.org'
-  > git config --global github.host github.com  # change this if you use GHE
-  > git config --global github.host skaji
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2016 Shoichi Kaji <skaji@cpan.org>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut
