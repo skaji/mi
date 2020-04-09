@@ -1,2 +1,5 @@
 #!perl
-use App::Mi; App::Mi->run(@ARGV);
+use strict;
+use warnings;
+use App::Mi;
+App::Mi->run(@ARGV);

@@ -1,4 +1,4 @@
-use 5.30.0;
+use 5.30.2;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -107,6 +107,9 @@ sub prepare_files ($self) {
         [MetaProvides::Package]
         inherit_version = 0
         inherit_missing = 0
+
+        [GitHubREADME::Badge]
+        badges = github_actions/linux
         ___
     } else {
         $ini = <<~'___';
@@ -115,6 +118,9 @@ sub prepare_files ($self) {
         [MetaProvides::Package]
         inherit_version = 0
         inherit_missing = 0
+
+        [GitHubREADME::Badge]
+        badges = github_actions/linux
         ___
     }
     path("dist.ini")->spew($ini);
@@ -128,7 +134,12 @@ sub prepare_files ($self) {
     name: linux
 
     on:
-      - push
+      push:
+        branches:
+          - '*'
+        tags-ignore:
+          - '*'
+      pull_request:
 
     jobs:
       perl:
@@ -142,12 +153,13 @@ sub prepare_files ($self) {
               - '5.10'
               - '5.16'
               - 'latest'
+              - 'threaded'
 
         container:
           image: perl:\${{ matrix.perl-version }}
 
         steps:
-          - uses: actions/checkout\@v1
+          - uses: actions/checkout\@v2
           - name: perl -V
             run: perl -V
           - name: Install Dependencies
