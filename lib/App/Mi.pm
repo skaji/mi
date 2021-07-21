@@ -1,4 +1,4 @@
-use 5.30.2;
+use 5.32.0;
 package App::Mi 0.01;
 
 use Capture::Tiny 'capture';
@@ -16,12 +16,6 @@ Usage: mi [options] Module
  -h, --help     show this help
  -v, --verbose  make mi verbose
 ___
-
-sub Path::Tiny::replace ($self, $sub) {
-    local $_ = $self->slurp;
-    $sub->();
-    $self->spew($_);
-}
 
 sub _capture ($cmd) { chomp( my $s = `$cmd` ); $? == 0 or die "Failed $cmd\n"; $s }
 sub _system (@argv) { !system @argv or die "Failed @argv\n" }
@@ -177,12 +171,12 @@ sub prepare_files ($self) {
         requires 'Test::LeakTrace';
     };
     ___
-    path("Changes")->replace(sub {
-        s{^\s+-}{    -}smg;
+    path("Changes")->edit(sub {
+        s{^\s+-}{  -}smg;
     });
 
     my $email = $self->email;
-    path( "lib/" . ($self->module =~ s{::}{/}gr) . ".pm" )->replace(sub {
+    path( "lib/" . ($self->module =~ s{::}{/}gr) . ".pm" )->edit(sub {
         s{\Q'0.01'}{'0.001'};
         s{\nuse strict;\nuse 5.008_005;}{use strict;\nuse warnings;\n};
         s{=head1 SEE ALSO\n\n}{};
@@ -222,7 +216,7 @@ sub write_xs_files ($self) {
     use XSLoader;
     XSLoader::load(__PACKAGE__, $VERSION);
     ___
-    path("$path.pm")->replace(sub { s{1;\n}{$load\n1;\n} });
+    path("$path.pm")->edit(sub { s{1;\n}{$load\n1;\n} });
     path("$path.xs")->spew(<<~"___");
     #ifdef __cplusplus
     extern "C" {

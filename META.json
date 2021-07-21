@@ -20,7 +20,7 @@
             "Dist::Zilla::Plugin::MetaProvides::Package" : "0",
             "File::pushd" : "0",
             "Path::Tiny" : "0",
-            "perl" : "v5.30.2"
+            "perl" : "v5.32.0"
          }
       }
    },
