@@ -143,9 +143,9 @@ sub prepare_files ($self) {
         strategy:
           matrix:
             perl-version:
-              - '5.8'
-              - '5.10'
-              - '5.16'
+              - '5.8-buster'
+              - '5.10-buster'
+              - '5.16-buster'
               - 'latest'
               - 'threaded'
 
